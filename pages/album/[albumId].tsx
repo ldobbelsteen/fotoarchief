@@ -121,6 +121,15 @@ const Gallery: NextPage = () => {
                       router.back();
                     }}
                   />
+                  <PostButton
+                    text="Maak omslagfoto"
+                    endpoint="/api/album/thumbnail"
+                    body={JSON.stringify({
+                      albumId: data.id,
+                      photoId: enlarged.id,
+                    })}
+                    callback={() => toast.success("Omslagfoto geüpdate")}
+                  />
                   <Link
                     href={{
                       pathname: router.pathname,
