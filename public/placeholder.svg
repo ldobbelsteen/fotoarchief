@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <filter id="grayscale">
+        <feColorMatrix values="0.1 0.1 0.1 0.7 0 0.1 0.1 0.1 0.7 0 0.1 0.1 0.1 0.7 0 0 0 0 1 0 " />
+    </filter>
+    <rect x="0" y="0" width="256" height="256" fill="#f5fafc" />
+    <g style="filter: grayscale(100%) opacity(10%)" transform="translate(32, 32) scale(0.75, 0.75)">
+        <rect y="48" width="256" height="160" ry="32" fill="#13c0f5" />
+        <rect x="0" y="96" width="256" height="64" fill="#2e3c57" />
+        <circle cx="128" cy="128" r="56" fill="#1a253b" />
+        <circle cx="128" cy="128" r="48" fill="#f5fafc" />
+        <rect x="-32" y="104" width="320" height="48" fill="#1a253b" transform="rotate(-45, 128, 128)" />
+    </g>
+</svg>

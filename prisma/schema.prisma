@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/fotoarchief.db"
+}
+
+model Album {
+  id          Int     @id @default(autoincrement())
+  name        String
+  photos      Photo[] @relation(name: "contents")
+  thumbnail   Photo?  @relation(name: "thumbnail", fields: [thumbnailId], references: [id])
+  thumbnailId Int?    @unique
+}
+
+model Photo {
+  id        Int    @id @default(autoincrement())
+  name      String
+  mime      String
+  width     Int
+  height    Int
+  album     Album  @relation(name: "contents", fields: [albumId], references: [id])
+  albumId   Int
+  thumbnail Album? @relation(name: "thumbnail")
+}
