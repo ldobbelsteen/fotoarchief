@@ -16,7 +16,7 @@ const schema = z.object({
     .array(stringIdSchema)
     .length(1)
     .transform((arr) => arr[0]),
-  photos: z
+  photo: z
     .array(
       z.object({
         originalFilename: z.string().min(1),
@@ -26,14 +26,15 @@ const schema = z.object({
         }),
       })
     )
-    .min(1),
+    .length(1)
+    .transform((arr) => arr[0]),
 });
 
 type Upload = z.infer<typeof schema>;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Photo[]>
+  res: NextApiResponse<Photo>
 ) {
   await fs.mkdir(tmpPhotoDir, { recursive: true });
 
@@ -51,36 +52,32 @@ export default async function handler(
     });
   });
 
-  const photos: Photo[] = [];
-  for (const photo of data.photos) {
-    const dimensions = imageSize(photo.path);
-    if (!dimensions.width || !dimensions.height)
-      throw Error("image dimensions could not be determined");
+  const dimensions = imageSize(data.photo.path);
+  if (!dimensions.width || !dimensions.height)
+    throw Error("image dimensions could not be determined");
 
-    const record = await prisma.photo.create({
-      data: {
-        name: photo.originalFilename,
-        mime: photo.headers["content-type"],
-        width: dimensions.width,
-        height: dimensions.height,
-        albumId: data.albumId,
-      },
-    });
+  const photo = await prisma.photo.create({
+    data: {
+      name: data.photo.originalFilename,
+      mime: data.photo.headers["content-type"],
+      width: dimensions.width,
+      height: dimensions.height,
+      albumId: data.albumId,
+    },
+  });
 
-    await fs.rename(photo.path, photoDir + record.id);
-    photos.push(record);
-  }
+  await fs.rename(data.photo.path, photoDir + photo.id);
 
   await prisma.album.update({
     where: {
       id: data.albumId,
     },
     data: {
-      thumbnailId: photos[0].id,
+      thumbnailId: photo.id,
     },
   });
 
-  return res.json(photos);
+  return res.json(photo);
 }
 
 export const config = {

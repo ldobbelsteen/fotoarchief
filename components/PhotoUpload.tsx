@@ -1,4 +1,5 @@
 import { ChangeEvent, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export const allowedMimes = ["image/jpeg", "image/png"] as const;
 
@@ -7,23 +8,32 @@ export default function PhotoUpload(props: {
   onUpload: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
-  const handleFiles = (ev: ChangeEvent<HTMLInputElement>) => {
-    if (ev.target.files) {
-      setIsUploading(true);
+  const handleSubmit = (ev: ChangeEvent<HTMLInputElement>) => {
+    if (!ev.target.files) return toast.error("Geen bestanden geselecteerd");
+    const files = Array.from(ev.target.files);
+    setDisabled(true);
+
+    let completed = 0;
+    const text = () => `Uploaden (${completed}/${files.length})`;
+    const progress = toast.loading(text());
+    for (const file of files) {
       const form = new FormData();
       form.append("albumId", props.albumId.toString());
-      for (const file of Array.from(ev.target.files)) {
-        form.append("photos", file);
-      }
+      form.append("photo", file);
       fetch("/api/photo/upload", {
         method: "POST",
         body: form,
       }).then(() => {
-        ev.target.value = "";
-        setIsUploading(false);
-        props.onUpload();
+        completed += 1;
+        toast.loading(text(), { id: progress });
+        if (completed === files.length) {
+          toast.success("Uploaden voltooid", { id: progress });
+          ev.target.value = "";
+          setDisabled(false);
+          props.onUpload();
+        }
       });
     }
   };
@@ -36,8 +46,8 @@ export default function PhotoUpload(props: {
         ref={inputRef}
         className="hidden"
         accept={allowedMimes.join(",")}
-        onChange={handleFiles}
-        disabled={isUploading}
+        onChange={handleSubmit}
+        disabled={disabled}
       />
       <button className="btn" onClick={() => inputRef.current?.click()}>
         Toevoegen
