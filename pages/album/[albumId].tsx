@@ -52,7 +52,10 @@ const Gallery: NextPage = () => {
           body={JSON.stringify({
             id: data.id,
           })}
-          callback={() => router.push("/")}
+          callback={() => {
+            router.push("/");
+            toast.success("Album verwijderd");
+          }}
         />
         <Link href="/">
           <a>
@@ -119,6 +122,7 @@ const Gallery: NextPage = () => {
                     callback={() => {
                       mutate();
                       router.back();
+                      toast.success("Foto verwijderd");
                     }}
                   />
                   <PostButton
@@ -128,7 +132,7 @@ const Gallery: NextPage = () => {
                       albumId: data.id,
                       photoId: enlarged.id,
                     })}
-                    callback={() => toast.success("Omslagfoto geüpdate")}
+                    callback={() => toast.success("Ingesteld als omslagfoto")}
                   />
                   <Link
                     href={{

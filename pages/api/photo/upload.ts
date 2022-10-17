@@ -16,16 +16,20 @@ const schema = z.object({
     .array(stringIdSchema)
     .length(1)
     .transform((arr) => arr[0]),
-  photos: z.array(
-    z.object({
-      originalFilename: z.string().min(1),
-      path: z.string().min(1),
-      headers: z.object({
-        "content-type": z.enum(allowedMimes),
-      }),
-    })
-  ),
+  photos: z
+    .array(
+      z.object({
+        originalFilename: z.string().min(1),
+        path: z.string().min(1),
+        headers: z.object({
+          "content-type": z.enum(allowedMimes),
+        }),
+      })
+    )
+    .min(1),
 });
+
+type Upload = z.infer<typeof schema>;
 
 export default async function handler(
   req: NextApiRequest,
@@ -37,7 +41,7 @@ export default async function handler(
     uploadDir: tmpPhotoDir,
   });
 
-  const data = await new Promise<z.infer<typeof schema>>((res, rej) => {
+  const data = await new Promise<Upload>((res, rej) => {
     form.parse(req, (err, rawFields, rawFiles) => {
       if (err) return rej({ err });
       const rawBody = { ...rawFields, ...rawFiles };
@@ -63,18 +67,18 @@ export default async function handler(
       },
     });
 
-    await prisma.album.update({
-      where: {
-        id: data.albumId,
-      },
-      data: {
-        thumbnailId: record.id,
-      },
-    });
-
     await fs.rename(photo.path, photoDir + record.id);
     photos.push(record);
   }
+
+  await prisma.album.update({
+    where: {
+      id: data.albumId,
+    },
+    data: {
+      thumbnailId: photos[0].id,
+    },
+  });
 
   return res.json(photos);
 }
