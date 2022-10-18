@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
+import toast from "react-hot-toast";
 
 const CreateAlbum: NextPage = () => {
   const router = useRouter();
@@ -17,7 +18,8 @@ const CreateAlbum: NextPage = () => {
       }),
     })
       .then((res) => res.json())
-      .then((album) => router.push("/album/" + album.id));
+      .then((album) => router.push("/album/" + album.id))
+      .catch((err) => toast.error(JSON.stringify(err)));
   };
 
   return (

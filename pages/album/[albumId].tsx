@@ -8,16 +8,15 @@ import useSWR from "swr";
 import { z } from "zod";
 import PhotoUpload from "../../components/PhotoUpload";
 import PostButton from "../../components/PostButton";
-import { stringIdSchema } from "../../utils/api";
-import { loading } from "../../utils/misc";
+import { placeholder } from "../../utils/misc";
 import { Contents } from "../api/album/contents";
 
 const galleryPhotoHeight = 256;
 const maxGrowFactor = 1.5;
 
 const schema = z.object({
-  albumId: stringIdSchema,
-  enlarged: stringIdSchema.optional(),
+  albumId: z.string().uuid(),
+  enlarged: z.string().uuid().optional(),
 });
 
 const Gallery: NextPage = () => {
@@ -45,7 +44,15 @@ const Gallery: NextPage = () => {
         Album <span className="font-normal">{data.name}</span>
       </h2>
       <div className="flex flex-wrap justify-center">
-        <PhotoUpload albumId={data.id} onUpload={mutate} />
+        <PhotoUpload
+          albumId={data.id}
+          onUpload={(photo) => {
+            mutate((d) => {
+              d?.photos.push(photo);
+              return d;
+            });
+          }}
+        />
         <PostButton
           text="Verwijderen"
           endpoint="/api/album/delete"
@@ -87,7 +94,7 @@ const Gallery: NextPage = () => {
               >
                 <Image
                   placeholder="blur"
-                  blurDataURL={loading}
+                  blurDataURL={placeholder}
                   className="object-cover rounded-lg"
                   src={"/api/photo/" + photo.id}
                   alt={photo.name}
@@ -120,7 +127,10 @@ const Gallery: NextPage = () => {
                       id: enlarged.id,
                     })}
                     callback={() => {
-                      mutate();
+                      mutate((d) => {
+                        if (d) d.photos.filter((p) => p.id !== enlarged.id);
+                        return d;
+                      });
                       router.back();
                       toast.success("Foto verwijderd");
                     }}
@@ -150,7 +160,7 @@ const Gallery: NextPage = () => {
                 <div className="relative flex-grow">
                   <Image
                     placeholder="blur"
-                    blurDataURL={loading}
+                    blurDataURL={placeholder}
                     className="object-contain p-2 pt-0"
                     src={"/api/photo/" + enlarged.id}
                     alt={enlarged.name}

@@ -1,12 +1,11 @@
 import { Album } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
-import { idSchema } from "../../../utils/api";
 import { prisma } from "../../../utils/db";
 import { deletePhoto } from "../photo/delete";
 
 const schema = z.object({
-  id: idSchema,
+  id: z.string().uuid(),
 });
 
 export default async function handler(

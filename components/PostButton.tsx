@@ -1,4 +1,5 @@
 import { ChangeEvent, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function PostButton(props: {
   text: string;
@@ -14,11 +15,14 @@ export default function PostButton(props: {
     fetch(props.endpoint, {
       method: "POST",
       body: props.body,
-    }).then(() => {
-      if (props.callback) {
-        props.callback();
-      }
-    });
+    })
+      .then(() => {
+        if (props.callback) {
+          props.callback();
+        }
+        return;
+      })
+      .catch((err) => toast.error(JSON.stringify(err)));
   };
 
   return (

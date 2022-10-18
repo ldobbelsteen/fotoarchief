@@ -1,12 +1,11 @@
 import { promises as fs } from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
-import { stringIdSchema } from "../../../utils/api";
 import { prisma } from "../../../utils/db";
 import { photoDir } from "./upload";
 
 const schema = z.object({
-  photoId: stringIdSchema,
+  photoId: z.string().uuid(),
 });
 
 export default async function handler(

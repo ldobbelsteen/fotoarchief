@@ -2,15 +2,14 @@ import { promises as fs } from "fs";
 import { Photo } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
-import { idSchema } from "../../../utils/api";
 import { prisma } from "../../../utils/db";
 import { photoDir } from "../photo/upload";
 
 const schema = z.object({
-  id: idSchema,
+  id: z.string().uuid(),
 });
 
-export const deletePhoto = async (id: number) => {
+export const deletePhoto = async (id: string) => {
   await fs.unlink(photoDir + id);
   return await prisma.photo.delete({
     where: {

@@ -8,20 +8,20 @@ datasource db {
 }
 
 model Album {
-  id          Int     @id @default(autoincrement())
+  id          String  @id
   name        String
   photos      Photo[] @relation(name: "contents")
   thumbnail   Photo?  @relation(name: "thumbnail", fields: [thumbnailId], references: [id])
-  thumbnailId Int?    @unique
+  thumbnailId String? @unique
 }
 
 model Photo {
-  id        Int    @id @default(autoincrement())
+  id        String @id
   name      String
   mime      String
   width     Int
   height    Int
   album     Album  @relation(name: "contents", fields: [albumId], references: [id])
-  albumId   Int
+  albumId   String
   thumbnail Album? @relation(name: "thumbnail")
 }

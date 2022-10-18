@@ -3,7 +3,7 @@ import Image from "next/future/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import useSWR from "swr";
-import { loading } from "../utils/misc";
+import { placeholder } from "../utils/misc";
 import { List } from "./api/album/list";
 
 const Home: NextPage = () => {
@@ -27,7 +27,7 @@ const Home: NextPage = () => {
                 <div className="w-48 h-48 relative block overflow-hidden">
                   <Image
                     placeholder="blur"
-                    blurDataURL={loading}
+                    blurDataURL={placeholder}
                     src={
                       album.thumbnail
                         ? "/api/photo/" + album.thumbnail.id

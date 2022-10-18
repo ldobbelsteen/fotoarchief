@@ -1,11 +1,11 @@
+import { Photo } from "@prisma/client";
 import { ChangeEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
-
-export const allowedMimes = ["image/jpeg", "image/png"] as const;
+import { photoMimes, photoSchema } from "../utils/api";
 
 export default function PhotoUpload(props: {
-  albumId: number;
-  onUpload: () => void;
+  albumId: string;
+  onUpload: (p: Photo) => void; // eslint-disable-line no-unused-vars
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [disabled, setDisabled] = useState(false);
@@ -25,16 +25,23 @@ export default function PhotoUpload(props: {
       fetch("/api/photo/upload", {
         method: "POST",
         body: form,
-      }).then(() => {
-        completed += 1;
-        toast.loading(text(), { id: progress });
-        if (completed === files.length) {
-          toast.success("Uploaden voltooid", { id: progress });
-          ev.target.value = "";
-          setDisabled(false);
-          props.onUpload();
-        }
-      });
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const photo = photoSchema.parse(data);
+          props.onUpload(photo);
+          return;
+        })
+        .finally(() => {
+          completed += 1;
+          toast.loading(text(), { id: progress });
+          if (completed === files.length) {
+            toast.success("Uploaden voltooid", { id: progress });
+            ev.target.value = "";
+            setDisabled(false);
+          }
+        })
+        .catch((err) => toast.error(JSON.stringify(err)));
     }
   };
 
@@ -45,7 +52,7 @@ export default function PhotoUpload(props: {
         type="file"
         ref={inputRef}
         className="hidden"
-        accept={allowedMimes.join(",")}
+        accept={photoMimes.join(",")}
         onChange={handleSubmit}
         disabled={disabled}
       />

@@ -1,11 +1,10 @@
 import { Album, Photo } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
-import { stringIdSchema } from "../../../utils/api";
 import { prisma } from "../../../utils/db";
 
 const schema = z.object({
-  id: stringIdSchema,
+  id: z.string().uuid(),
 });
 
 export type Contents = Album & { photos: Photo[] };
