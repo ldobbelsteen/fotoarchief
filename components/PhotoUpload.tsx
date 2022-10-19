@@ -3,6 +3,8 @@ import { ChangeEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { photoMimes, photoSchema, postForm } from "../utils/api";
 
+const concurrentUploads = 4;
+
 export default function PhotoUpload(props: {
   albumId: string;
   onUpload: (p: Photo) => void; // eslint-disable-line no-unused-vars
@@ -13,30 +15,43 @@ export default function PhotoUpload(props: {
   const handleSubmit = (ev: ChangeEvent<HTMLInputElement>) => {
     if (!ev.target.files) return toast.error("Geen bestanden geselecteerd");
     const files = Array.from(ev.target.files);
+    const totalFiles = files.length;
+    let finishedFiles = 0;
     setDisabled(true);
 
-    let completed = 0;
-    const text = () => `Uploaden (${completed}/${files.length})`;
+    const text = () => `Uploaden (${finishedFiles}/${totalFiles})`;
     const progress = toast.loading(text());
-    for (const file of files) {
+
+    const uploadNextPhoto = () => {
+      const file = files.pop();
+      if (file) uploadPhoto(file);
+    };
+
+    const uploadPhoto = (file: File) => {
       const form = new FormData();
       form.append("albumId", props.albumId.toString());
       form.append("photo", file);
       postForm("/api/photo/upload", form, photoSchema)
         .then(props.onUpload)
         .finally(() => {
-          completed += 1;
+          finishedFiles += 1;
           toast.loading(text(), { id: progress });
-          if (completed === files.length) {
+          if (finishedFiles === totalFiles) {
             toast.success("Uploaden voltooid", { id: progress });
             ev.target.value = "";
             setDisabled(false);
+          } else {
+            uploadNextPhoto();
           }
         })
         .catch((err) => {
           console.error(err);
           toast.error(`Fout bij uploaden van '${file.name}'`);
         });
+    };
+
+    for (let i = 0; i < concurrentUploads; i++) {
+      uploadNextPhoto();
     }
   };
 
