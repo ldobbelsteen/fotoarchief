@@ -1,12 +1,8 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
-import { z } from "zod";
-import { postRequest } from "../../utils/api";
-
-const schema = z.object({
-  id: z.string().uuid(),
-});
+import { albumSchema, post } from "../../utils/api";
+import { albumCreateSchema } from "../../utils/schema";
 
 const CreateAlbum: NextPage = () => {
   const router = useRouter();
@@ -16,12 +12,13 @@ const CreateAlbum: NextPage = () => {
   const handleSubmit = (ev: ChangeEvent<HTMLFormElement>) => {
     ev.preventDefault();
     setDisabled(true);
-    postRequest(
+    post(
       "/api/album/create",
-      JSON.stringify({
+      {
         name: name,
-      }),
-      schema
+      },
+      albumCreateSchema,
+      albumSchema
     )
       .then(({ id }) => router.push("/album/" + id))
       .catch(console.error);

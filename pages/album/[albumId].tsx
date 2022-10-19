@@ -7,8 +7,13 @@ import toast from "react-hot-toast";
 import useSWR from "swr";
 import { z } from "zod";
 import PhotoUpload from "../../components/PhotoUpload";
-import { postRequest } from "../../utils/api";
+import { albumSchema, photoSchema, post } from "../../utils/api";
 import { placeholder } from "../../utils/misc";
+import {
+  albumDeleteSchema,
+  albumThumbnailSchema,
+  photoDeleteSchema,
+} from "../../utils/schema";
 import { Contents } from "../api/album/contents";
 
 const galleryPhotoHeight = 256;
@@ -61,9 +66,10 @@ const Gallery: NextPage = () => {
           value="Verwijderen"
           className="btn"
           onClick={() => {
-            postRequest(
+            post(
               "/api/album/delete",
-              JSON.stringify({ id: data.id }),
+              { id: data.id },
+              albumDeleteSchema,
               z.object({})
             )
               .then(() => toast.success("Album verwijderd"))
@@ -132,10 +138,11 @@ const Gallery: NextPage = () => {
                     value="Verwijderen"
                     className="btn"
                     onClick={() => {
-                      postRequest(
+                      post(
                         "/api/photo/delete",
-                        JSON.stringify({ id: enlarged.id }),
-                        z.object({})
+                        { id: enlarged.id },
+                        photoDeleteSchema,
+                        photoSchema
                       )
                         .then(() => {
                           mutate((data) => {
@@ -160,13 +167,14 @@ const Gallery: NextPage = () => {
                     value="Maak omslagfoto"
                     className="btn"
                     onClick={() => {
-                      postRequest(
+                      post(
                         "/api/album/thumbnail",
-                        JSON.stringify({
+                        {
                           albumId: data.id,
                           photoId: enlarged.id,
-                        }),
-                        z.object({})
+                        },
+                        albumThumbnailSchema,
+                        albumSchema
                       )
                         .then(() => toast.success("Ingesteld als omslagfoto"))
                         .catch(() =>

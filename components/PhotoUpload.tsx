@@ -1,7 +1,7 @@
 import { Photo } from "@prisma/client";
 import { ChangeEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { photoMimes, photoSchema, postRequest } from "../utils/api";
+import { photoMimes, photoSchema, postForm } from "../utils/api";
 
 export default function PhotoUpload(props: {
   albumId: string;
@@ -22,7 +22,7 @@ export default function PhotoUpload(props: {
       const form = new FormData();
       form.append("albumId", props.albumId.toString());
       form.append("photo", file);
-      postRequest("/api/photo/upload", form, photoSchema)
+      postForm("/api/photo/upload", form, photoSchema)
         .then(props.onUpload)
         .finally(() => {
           completed += 1;

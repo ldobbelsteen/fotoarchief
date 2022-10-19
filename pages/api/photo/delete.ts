@@ -1,13 +1,9 @@
 import { promises as fs } from "fs";
 import { Photo } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { z } from "zod";
 import { prisma } from "../../../utils/db";
+import { photoDeleteSchema } from "../../../utils/schema";
 import { photoDir } from "../photo/upload";
-
-const schema = z.object({
-  id: z.string().uuid(),
-});
 
 export const deletePhoto = async (id: string) => {
   await fs.unlink(photoDir + id);
@@ -22,7 +18,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Photo>
 ) {
-  const query = schema.safeParse(JSON.parse(req.body));
+  const query = photoDeleteSchema.safeParse(JSON.parse(req.body));
   if (!query.success) return res.status(400).end();
 
   const photo = await deletePhoto(query.data.id);

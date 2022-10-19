@@ -1,18 +1,14 @@
 import { Album } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { z } from "zod";
 import { prisma } from "../../../utils/db";
+import { albumDeleteSchema } from "../../../utils/schema";
 import { deletePhoto } from "../photo/delete";
-
-const schema = z.object({
-  id: z.string().uuid(),
-});
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Album>
 ) {
-  const query = schema.safeParse(JSON.parse(req.body));
+  const query = albumDeleteSchema.safeParse(JSON.parse(req.body));
   if (!query.success) return res.status(400).end();
 
   const photos = await prisma.photo.findMany({
