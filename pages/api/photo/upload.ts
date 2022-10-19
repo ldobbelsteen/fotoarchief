@@ -4,9 +4,9 @@ import busboy from "busboy";
 import type { NextApiRequest, NextApiResponse } from "next";
 import probe from "probe-image-size";
 import { z } from "zod";
-import { photoMimes } from "../../../utils/api";
 import { prisma } from "../../../utils/db";
 import { randomUUID } from "../../../utils/misc";
+import { photoMimes } from "../../../utils/schema";
 
 const maxPhotoSize = 8 * 1024 * 1024;
 export const photoDir = "./data/photos/";
@@ -71,8 +71,7 @@ export default async function handler(
         if (name !== "photo") {
           throw new Error("wrong file name");
         }
-        const mimes = photoMimes as readonly string[];
-        if (!mimes.includes(info.mimeType)) {
+        if (!photoMimes.includes(info.mimeType)) {
           throw new Error("unsupported mime type");
         }
         photo = {

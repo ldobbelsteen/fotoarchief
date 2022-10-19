@@ -1,7 +1,8 @@
 import { Photo } from "@prisma/client";
 import { ChangeEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { photoMimes, photoSchema, postForm } from "../utils/api";
+import { postForm } from "../utils/api";
+import { photoMimes, photoSchema } from "../utils/schema";
 
 const concurrentUploads = 4;
 

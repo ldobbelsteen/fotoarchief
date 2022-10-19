@@ -7,12 +7,14 @@ import toast from "react-hot-toast";
 import useSWR from "swr";
 import { z } from "zod";
 import PhotoUpload from "../../components/PhotoUpload";
-import { albumSchema, photoSchema, post } from "../../utils/api";
+import { post } from "../../utils/api";
 import { placeholder } from "../../utils/misc";
 import {
   albumDeleteSchema,
+  albumSchema,
   albumThumbnailSchema,
   photoDeleteSchema,
+  photoSchema,
 } from "../../utils/schema";
 import { Contents } from "../api/album/contents";
 

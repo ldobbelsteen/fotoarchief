@@ -1,8 +1,8 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
-import { albumSchema, post } from "../../utils/api";
-import { albumCreateSchema } from "../../utils/schema";
+import { post } from "../../utils/api";
+import { albumCreateSchema, albumSchema } from "../../utils/schema";
 
 const CreateAlbum: NextPage = () => {
   const router = useRouter();
