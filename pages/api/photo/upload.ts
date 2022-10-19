@@ -1,4 +1,5 @@
-import { createReadStream, createWriteStream, promises as fs } from "fs";
+import { createWriteStream, promises as fs } from "fs";
+import { PassThrough } from "stream";
 import { Photo } from "@prisma/client";
 import busboy from "busboy";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -29,42 +30,43 @@ export default async function handler(
       },
     });
 
-    interface Upload {
-      id: string;
-      name: string;
-      mime: string;
-    }
-
     let albumId: string | null = null;
-    let photo: Upload | null = null;
+    let photoId: string | null = null;
+    let photoName: string | null = null;
+    let photoMime: string | null = null;
+    let photoWidth: number | null = null;
+    let photoHeight: number | null = null;
 
-    const abort = (err: unknown) => {
+    bb.on("error", (err: unknown) => {
       req.unpipe(bb);
-      if (photo) {
-        fs.unlink(photoDir + photo.id);
+      if (photoId) {
+        fs.unlink(photoDir + photoId);
       }
       reject(err);
-    };
+    });
 
-    bb.on("error", abort);
-    bb.on("fieldsLimit", abort);
-    bb.on("filesLimit", abort);
-    bb.on("partsLimit", abort);
+    bb.on("fieldsLimit", () =>
+      bb.emit("error", new Error("field limit reached"))
+    );
+    bb.on("filesLimit", () =>
+      bb.emit("error", new Error("files limit reached"))
+    );
+    bb.on("partsLimit", () =>
+      bb.emit("error", new Error("parts limit reached"))
+    );
 
     bb.on("field", (name, value) => {
       try {
         if (name !== "albumId") {
-          throw new Error("wrong field name");
+          throw new Error("invalid field name");
         }
-        const parse = z.string().uuid().safeParse(value);
-        if (!parse.success) {
-          throw new Error("invalid identifier");
-        }
-        albumId = parse.data;
+        albumId = z.string().uuid().parse(value);
       } catch (err) {
         bb.emit("error", err);
       }
     });
+
+    let waitingForDimensions = false;
 
     bb.on("file", (name, file, info) => {
       try {
@@ -74,16 +76,25 @@ export default async function handler(
         if (!photoMimes.includes(info.mimeType)) {
           throw new Error("unsupported mime type");
         }
-        photo = {
-          id: randomUUID(),
-          name: info.filename,
-          mime: info.mimeType,
-        };
+        photoId = randomUUID();
+        photoName = info.filename;
+        photoMime = info.mimeType;
         file.on("limit", () => {
           throw new Error("file limit reached");
         });
-        const write = createWriteStream(photoDir + photo.id);
-        file.pipe(write);
+        const fileStream = file.pipe(new PassThrough());
+        const dimensionsStream = file.pipe(new PassThrough());
+        fileStream.pipe(createWriteStream(photoDir + photoId));
+        probe(dimensionsStream)
+          .then((dims) => {
+            photoWidth = dims.width;
+            photoHeight = dims.height;
+            if (waitingForDimensions) {
+              bb.emit("close");
+            }
+            return;
+          })
+          .catch((err) => bb.emit("error", err));
       } catch (err) {
         bb.emit("error", err);
       }
@@ -91,20 +102,20 @@ export default async function handler(
 
     bb.on("close", async () => {
       try {
-        if (!albumId || !photo) {
-          throw new Error("incomplete request body");
+        if (!photoWidth || !photoHeight) {
+          waitingForDimensions = true;
+          return;
         }
-        const dimensions = await probe(createReadStream(photoDir + photo.id));
-        if (!dimensions.width || !dimensions.height) {
-          throw new Error("could not determine image dimensions");
+        if (!albumId || !photoId || !photoName || !photoMime) {
+          throw new Error("incomplete request body");
         }
         const record = await prisma.photo.create({
           data: {
-            id: photo.id,
-            name: photo.name,
-            mime: photo.mime,
-            width: dimensions.width,
-            height: dimensions.height,
+            id: photoId,
+            name: photoName,
+            mime: photoMime,
+            width: photoWidth,
+            height: photoHeight,
             albumId: albumId,
           },
         });
