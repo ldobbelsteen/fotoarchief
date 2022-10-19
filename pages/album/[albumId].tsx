@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import useSWR from "swr";
 import { z } from "zod";
 import PhotoUpload from "../../components/PhotoUpload";
-import PostButton from "../../components/PostButton";
+import { postRequest } from "../../utils/api";
 import { placeholder } from "../../utils/misc";
 import { Contents } from "../api/album/contents";
 
@@ -25,7 +25,10 @@ const Gallery: NextPage = () => {
   const { data, mutate, error } = useSWR<Contents, Error>(
     query.success ? "/api/album/contents?id=" + query.data.albumId : null
   );
-  if (error) toast.error(error.message);
+  if (error) {
+    toast.error("Fout bij ophalen foto's");
+    console.error(error);
+  }
 
   if (!query.success || !data) {
     return <></>;
@@ -53,22 +56,21 @@ const Gallery: NextPage = () => {
             });
           }}
         />
-        <PostButton
-          endpoint="/api/album/delete"
-          body={JSON.stringify({
-            id: data.id,
-          })}
-          onSuccess={() => {
-            router.push("/");
-            toast.success("Album verwijderd");
+        <input
+          type="button"
+          value="Verwijderen"
+          className="btn"
+          onClick={() => {
+            postRequest(
+              "/api/album/delete",
+              JSON.stringify({ id: data.id }),
+              z.object({})
+            )
+              .then(() => toast.success("Album verwijderd"))
+              .finally(() => router.push("/"))
+              .catch(() => toast.error("Fout bij verwijderen van album"));
           }}
-          onError={() => {
-            router.push("/");
-            toast.error("Fout bij verwijderen van album");
-          }}
-        >
-          Verwijderen
-        </PostButton>
+        />
         <Link href="/">
           <a>
             <button className="btn">Terug</button>
@@ -125,42 +127,53 @@ const Gallery: NextPage = () => {
                       Downloaden
                     </a>
                   </button>
-                  <PostButton
-                    endpoint="/api/photo/delete"
-                    body={JSON.stringify({
-                      id: enlarged.id,
-                    })}
-                    onSuccess={() => {
-                      mutate((data) => {
-                        if (data) {
-                          data.photos = data.photos.filter(
-                            (photo) => photo.id !== enlarged.id
-                          );
-                        }
-                        return data;
-                      });
-                      router.back();
-                      toast.success("Foto verwijderd");
+                  <input
+                    type="button"
+                    value="Verwijderen"
+                    className="btn"
+                    onClick={() => {
+                      postRequest(
+                        "/api/photo/delete",
+                        JSON.stringify({ id: enlarged.id }),
+                        z.object({})
+                      )
+                        .then(() => {
+                          mutate((data) => {
+                            if (data) {
+                              data.photos = data.photos.filter(
+                                (photo) => photo.id !== enlarged.id
+                              );
+                            }
+                            return data;
+                          });
+                          toast.success("Foto verwijderd");
+                          return;
+                        })
+                        .finally(() => router.back())
+                        .catch(() =>
+                          toast.error("Fout bij verwijderen van foto")
+                        );
                     }}
-                    onError={() => {
-                      toast.error("Fout bij verwijderen van foto");
+                  />
+                  <input
+                    type="button"
+                    value="Maak omslagfoto"
+                    className="btn"
+                    onClick={() => {
+                      postRequest(
+                        "/api/album/thumbnail",
+                        JSON.stringify({
+                          albumId: data.id,
+                          photoId: enlarged.id,
+                        }),
+                        z.object({})
+                      )
+                        .then(() => toast.success("Ingesteld als omslagfoto"))
+                        .catch(() =>
+                          toast.error("Fout bij instellen als omslagfoto")
+                        );
                     }}
-                  >
-                    Verwijderen
-                  </PostButton>
-                  <PostButton
-                    endpoint="/api/album/thumbnail"
-                    body={JSON.stringify({
-                      albumId: data.id,
-                      photoId: enlarged.id,
-                    })}
-                    onSuccess={() => toast.success("Ingesteld als omslagfoto")}
-                    onError={() =>
-                      toast.error("Fout bij instellen als omslagfoto")
-                    }
-                  >
-                    Maak omslagfoto
-                  </PostButton>
+                  />
                   <Link
                     href={{
                       pathname: router.pathname,

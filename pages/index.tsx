@@ -8,7 +8,10 @@ import { List } from "./api/album/list";
 
 const Home: NextPage = () => {
   const { data, error } = useSWR<List, Error>("/api/album/list");
-  if (error) toast.error(error.message);
+  if (error) {
+    toast.error("Fout bij ophalen albums");
+    console.error(error);
+  }
 
   return (
     <>

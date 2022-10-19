@@ -19,15 +19,20 @@ export const photoSchema = z.object({
 export const postRequest = async <T = never>(
   url: string,
   body: string | FormData,
-  responseSchema: z.Schema<T>
+  schema: z.Schema<T>
 ): Promise<T> => {
-  const res = await fetch(url, {
-    method: "POST",
-    body: body,
-  });
-  if (!res.ok) {
-    throw new Error(`${res.status} POST failed`);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: body,
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} POST failed`);
+    }
+    const json = await res.json();
+    return schema.parse(json);
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
-  const json = await res.json();
-  return responseSchema.parse(json);
 };

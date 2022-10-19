@@ -52,60 +52,68 @@ export default async function handler(
     bb.on("partsLimit", abort);
 
     bb.on("field", (name, value) => {
-      if (name !== "albumId") {
-        bb.emit("error", new Error("wrong field name"));
-        return;
+      try {
+        if (name !== "albumId") {
+          throw new Error("wrong field name");
+        }
+        const parse = z.string().uuid().safeParse(value);
+        if (!parse.success) {
+          throw new Error("invalid identifier");
+        }
+        albumId = parse.data;
+      } catch (err) {
+        bb.emit("error", err);
       }
-      const parse = z.string().uuid().safeParse(value);
-      if (!parse.success) {
-        bb.emit("error", new Error("invalid identifier"));
-        return;
-      }
-      albumId = parse.data;
     });
 
     bb.on("file", (name, file, info) => {
-      if (name !== "photo") {
-        bb.emit("error", new Error("wrong file name"));
-        return;
+      try {
+        if (name !== "photo") {
+          throw new Error("wrong file name");
+        }
+        const mimes = photoMimes as readonly string[];
+        if (!mimes.includes(info.mimeType)) {
+          throw new Error("unsupported mime type");
+        }
+        photo = {
+          id: randomUUID(),
+          name: info.filename,
+          mime: info.mimeType,
+        };
+        file.on("limit", () => {
+          throw new Error("file limit reached");
+        });
+        const write = createWriteStream(photoDir + photo.id);
+        file.pipe(write);
+      } catch (err) {
+        bb.emit("error", err);
       }
-      const mimes = photoMimes as readonly string[];
-      if (!mimes.includes(info.mimeType)) {
-        bb.emit("error", new Error("unsupported mime type"));
-        return;
-      }
-      photo = {
-        id: randomUUID(),
-        name: info.filename,
-        mime: info.mimeType,
-      };
-      file.on("limit", () => bb.emit("error", new Error("file limit reached")));
-      const write = createWriteStream(photoDir + photo.id);
-      file.pipe(write);
     });
 
     bb.on("close", async () => {
-      if (!albumId || !photo) {
-        bb.emit("error", new Error("incomplete request body"));
-        return;
+      try {
+        if (!albumId || !photo) {
+          throw new Error("incomplete request body");
+        }
+        const dimensions = await probe(createReadStream(photoDir + photo.id));
+        if (!dimensions.width || !dimensions.height) {
+          throw new Error("could not determine image dimensions");
+        }
+        const record = await prisma.photo.create({
+          data: {
+            id: photo.id,
+            name: photo.name,
+            mime: photo.mime,
+            width: dimensions.width,
+            height: dimensions.height,
+            albumId: albumId,
+          },
+        });
+        res.json(record);
+        resolve(record);
+      } catch (err) {
+        bb.emit("error", err);
       }
-      const dimensions = await probe(createReadStream(photoDir + photo.id));
-      if (!dimensions.width || !dimensions.height) {
-        bb.emit("error", new Error("could not determine image dimensions"));
-        return;
-      }
-      const record = await prisma.photo.create({
-        data: {
-          id: photo.id,
-          name: photo.name,
-          mime: photo.mime,
-          width: dimensions.width,
-          height: dimensions.height,
-          albumId: albumId,
-        },
-      });
-      res.json(record);
-      resolve(record);
     });
 
     req.pipe(bb);

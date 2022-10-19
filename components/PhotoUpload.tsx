@@ -33,7 +33,10 @@ export default function PhotoUpload(props: {
             setDisabled(false);
           }
         })
-        .catch(console.error);
+        .catch((err) => {
+          console.error(err);
+          toast.error(`Fout bij uploaden van '${file.name}'`);
+        });
     }
   };
 
@@ -48,9 +51,12 @@ export default function PhotoUpload(props: {
         onChange={handleSubmit}
         disabled={disabled}
       />
-      <button className="btn" onClick={() => inputRef.current?.click()}>
-        Toevoegen
-      </button>
+      <input
+        type="button"
+        value="Toevoegen"
+        className="btn"
+        onClick={() => inputRef.current?.click()}
+      />
     </>
   );
 }

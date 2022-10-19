@@ -22,7 +22,7 @@
 
 @layer components {
   .btn {
-    @apply rounded bg-demos-200 text-demos-100 font-bold p-2 m-2 transition duration-300 hover:scale-105;
+    @apply rounded bg-demos-200 text-demos-100 font-bold p-2 m-2 transition duration-300 hover:scale-105 cursor-pointer;
   }
 
   .ipt {
