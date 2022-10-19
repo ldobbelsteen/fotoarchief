@@ -54,16 +54,21 @@ const Gallery: NextPage = () => {
           }}
         />
         <PostButton
-          text="Verwijderen"
           endpoint="/api/album/delete"
           body={JSON.stringify({
             id: data.id,
           })}
-          callback={() => {
+          onSuccess={() => {
             router.push("/");
             toast.success("Album verwijderd");
           }}
-        />
+          onError={() => {
+            router.push("/");
+            toast.error("Fout bij verwijderen van album");
+          }}
+        >
+          Verwijderen
+        </PostButton>
         <Link href="/">
           <a>
             <button className="btn">Terug</button>
@@ -121,29 +126,41 @@ const Gallery: NextPage = () => {
                     </a>
                   </button>
                   <PostButton
-                    text="Verwijderen"
                     endpoint="/api/photo/delete"
                     body={JSON.stringify({
                       id: enlarged.id,
                     })}
-                    callback={() => {
-                      mutate((d) => {
-                        if (d) d.photos.filter((p) => p.id !== enlarged.id);
-                        return d;
+                    onSuccess={() => {
+                      mutate((data) => {
+                        if (data) {
+                          data.photos = data.photos.filter(
+                            (photo) => photo.id !== enlarged.id
+                          );
+                        }
+                        return data;
                       });
                       router.back();
                       toast.success("Foto verwijderd");
                     }}
-                  />
+                    onError={() => {
+                      toast.error("Fout bij verwijderen van foto");
+                    }}
+                  >
+                    Verwijderen
+                  </PostButton>
                   <PostButton
-                    text="Maak omslagfoto"
                     endpoint="/api/album/thumbnail"
                     body={JSON.stringify({
                       albumId: data.id,
                       photoId: enlarged.id,
                     })}
-                    callback={() => toast.success("Ingesteld als omslagfoto")}
-                  />
+                    onSuccess={() => toast.success("Ingesteld als omslagfoto")}
+                    onError={() =>
+                      toast.error("Fout bij instellen als omslagfoto")
+                    }
+                  >
+                    Maak omslagfoto
+                  </PostButton>
                   <Link
                     href={{
                       pathname: router.pathname,

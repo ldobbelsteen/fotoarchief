@@ -1,34 +1,30 @@
-import { ChangeEvent, useState } from "react";
-import toast from "react-hot-toast";
+import { ChangeEvent, PropsWithChildren, useState } from "react";
+import { z } from "zod";
+import { postRequest } from "../utils/api";
 
-export default function PostButton(props: {
-  text: string;
-  endpoint: string;
-  body: string;
-  callback?: () => void;
-}) {
+export default function PostButton(
+  props: PropsWithChildren<{
+    endpoint: string;
+    body: string;
+    onSuccess: () => void;
+    onError: (err: unknown) => void; // eslint-disable-line no-unused-vars
+  }>
+) {
   const [disabled, setDisabled] = useState(false);
 
   const handleSubmit = (ev: ChangeEvent<HTMLFormElement>) => {
     ev.preventDefault();
     setDisabled(true);
-    fetch(props.endpoint, {
-      method: "POST",
-      body: props.body,
-    })
-      .then(() => {
-        if (props.callback) {
-          props.callback();
-        }
-        return;
-      })
-      .catch((err) => toast.error(JSON.stringify(err)));
+    postRequest(props.endpoint, props.body, z.object({}))
+      .then(props.onSuccess)
+      .finally(() => setDisabled(false))
+      .catch(props.onError);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <button className="btn" type="submit" disabled={disabled}>
-        {props.text}
+        {props.children}
       </button>
     </form>
   );

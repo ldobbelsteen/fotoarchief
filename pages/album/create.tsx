@@ -1,7 +1,12 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
-import toast from "react-hot-toast";
+import { z } from "zod";
+import { postRequest } from "../../utils/api";
+
+const schema = z.object({
+  id: z.string().uuid(),
+});
 
 const CreateAlbum: NextPage = () => {
   const router = useRouter();
@@ -11,15 +16,15 @@ const CreateAlbum: NextPage = () => {
   const handleSubmit = (ev: ChangeEvent<HTMLFormElement>) => {
     ev.preventDefault();
     setDisabled(true);
-    fetch("/api/album/create", {
-      method: "POST",
-      body: JSON.stringify({
+    postRequest(
+      "/api/album/create",
+      JSON.stringify({
         name: name,
       }),
-    })
-      .then((res) => res.json())
-      .then((album) => router.push("/album/" + album.id))
-      .catch((err) => toast.error(JSON.stringify(err)));
+      schema
+    )
+      .then(({ id }) => router.push("/album/" + id))
+      .catch(console.error);
   };
 
   return (

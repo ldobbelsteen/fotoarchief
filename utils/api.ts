@@ -10,3 +10,24 @@ export const photoSchema = z.object({
   height: z.number().int().positive(),
   albumId: z.string().uuid(),
 });
+
+/**
+ * Helper function for sending POST requests and validating the response data.
+ * Throws an error when the response is not OK or the response data validation
+ * fails.
+ */
+export const postRequest = async <T = never>(
+  url: string,
+  body: string | FormData,
+  responseSchema: z.Schema<T>
+): Promise<T> => {
+  const res = await fetch(url, {
+    method: "POST",
+    body: body,
+  });
+  if (!res.ok) {
+    throw new Error(`${res.status} POST failed`);
+  }
+  const json = await res.json();
+  return responseSchema.parse(json);
+};
