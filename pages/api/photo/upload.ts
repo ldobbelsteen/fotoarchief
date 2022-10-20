@@ -1,4 +1,4 @@
-import { createWriteStream, promises as fs } from "fs";
+import { createWriteStream, unlinkSync, promises } from "fs";
 import { PassThrough } from "stream";
 import { Photo } from "@prisma/client";
 import busboy from "busboy";
@@ -16,7 +16,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Photo>
 ) {
-  await fs.mkdir(photoDir, { recursive: true });
+  await promises.mkdir(photoDir, { recursive: true });
 
   return new Promise<Photo>((resolve, reject) => {
     const bb = busboy({
@@ -40,7 +40,7 @@ export default async function handler(
     bb.on("error", (err: unknown) => {
       req.unpipe(bb);
       if (photoId) {
-        fs.unlink(photoDir + photoId);
+        unlinkSync(photoDir + photoId);
       }
       reject(err);
     });
@@ -100,7 +100,7 @@ export default async function handler(
       }
     });
 
-    bb.on("close", async () => {
+    bb.on("close", () => {
       try {
         if (!photoWidth || !photoHeight) {
           waitingForDimensions = true;
@@ -109,18 +109,25 @@ export default async function handler(
         if (!albumId || !photoId || !photoName || !photoMime) {
           throw new Error("incomplete request body");
         }
-        const record = await prisma.photo.create({
-          data: {
-            id: photoId,
-            name: photoName,
-            mime: photoMime,
-            width: photoWidth,
-            height: photoHeight,
-            albumId: albumId,
-          },
-        });
-        res.json(record);
-        resolve(record);
+        prisma.photo
+          .create({
+            data: {
+              id: photoId,
+              name: photoName,
+              mime: photoMime,
+              width: photoWidth,
+              height: photoHeight,
+              albumId: albumId,
+            },
+          })
+          .then((record) => {
+            res.json(record);
+            resolve(record);
+            return;
+          })
+          .catch((err) => {
+            throw err;
+          });
       } catch (err) {
         bb.emit("error", err);
       }

@@ -20,7 +20,7 @@ export const post = async <T, U>(
     if (!res.ok) {
       throw new Error(`${res.status} POST failed`);
     }
-    const json = await res.json();
+    const json: unknown = await res.json();
     return responseSchema.parse(json);
   } catch (err) {
     console.error(err);
@@ -45,7 +45,7 @@ export const postForm = async <T>(
     if (!res.ok) {
       throw new Error(`${res.status} POST failed`);
     }
-    const json = await res.json();
+    const json: unknown = await res.json();
     return responseSchema.parse(json);
   } catch (err) {
     console.error(err);

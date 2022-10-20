@@ -45,6 +45,15 @@ const Gallery: NextPage = () => {
     (photo) => photo.id === query.data.enlarged
   );
 
+  const filterPhoto = (id: string) => {
+    mutate((data) => {
+      if (data) {
+        data.photos = data.photos.filter((photo) => photo.id !== id);
+      }
+      return data;
+    }).catch(console.error);
+  };
+
   return (
     <>
       <Head>
@@ -60,7 +69,7 @@ const Gallery: NextPage = () => {
             mutate((d) => {
               d?.photos.push(photo);
               return d;
-            });
+            }).catch(console.error);
           }}
         />
         <input
@@ -75,7 +84,9 @@ const Gallery: NextPage = () => {
               z.object({})
             )
               .then(() => toast.success("Album verwijderd"))
-              .finally(() => router.push("/"))
+              .finally(() => {
+                router.push("/").catch(console.error);
+              })
               .catch(() => toast.error("Fout bij verwijderen van album"));
           }}
         />
@@ -147,14 +158,7 @@ const Gallery: NextPage = () => {
                         photoSchema
                       )
                         .then(() => {
-                          mutate((data) => {
-                            if (data) {
-                              data.photos = data.photos.filter(
-                                (photo) => photo.id !== enlarged.id
-                              );
-                            }
-                            return data;
-                          });
+                          filterPhoto(enlarged.id);
                           toast.success("Foto verwijderd");
                           return;
                         })

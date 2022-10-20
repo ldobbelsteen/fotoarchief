@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Album>
 ) {
-  const query = albumCreateSchema.safeParse(JSON.parse(req.body));
+  const query = albumCreateSchema.safeParse(JSON.parse(req.body as string));
   if (!query.success) return res.status(400).end();
 
   const album = await prisma.album.create({

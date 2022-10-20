@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import { promises } from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 import { prisma } from "../../../utils/db";
@@ -25,7 +25,7 @@ export default async function handler(
     return res.status(404).end();
   }
 
-  const buffer = await fs.readFile(photoDir + query.data.photoId);
+  const buffer = await promises.readFile(photoDir + query.data.photoId);
   res.setHeader("Content-Type", photo.mime);
   return res.send(buffer);
 }

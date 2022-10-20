@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Album>
 ) {
-  const query = albumDeleteSchema.safeParse(JSON.parse(req.body));
+  const query = albumDeleteSchema.safeParse(JSON.parse(req.body as string));
   if (!query.success) return res.status(400).end();
 
   const photos = await prisma.photo.findMany({
