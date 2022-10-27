@@ -15,7 +15,7 @@ const App = ({ Component, pageProps }: AppProps) => (
       <title>Fotoarchief</title>
     </Head>
     <Toaster />
-    <main className="flex flex-col items-center justify-center bg-demos-300 text-demos-100 min-h-full text-center p-2">
+    <main className="flex flex-col items-center justify-center overflow-hidden bg-demos-300 text-demos-100 min-h-full text-center p-2">
       <Component {...pageProps} />
     </main>
   </SWRConfig>

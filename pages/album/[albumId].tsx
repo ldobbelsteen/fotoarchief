@@ -105,19 +105,22 @@ const Gallery: NextPage = () => {
         />
       </div>
       {data.photos.length > 0 ? (
-        <div className="flex flex-wrap gap-2 p-2 pt-4">
+        <div className="flex flex-wrap justify-center gap-2 p-2 pt-4">
           {data.photos.map((photo, i) => (
             <button
               key={i}
-              className="overflow-hidden relative"
+              className="relative"
               style={{
                 flexGrow: photo.width,
                 flexShrink: photo.width,
                 height: galleryPhotoHeight,
-                width: (photo.width * galleryPhotoHeight) / photo.height,
+                minWidth:
+                  ((photo.width * galleryPhotoHeight) / photo.height) *
+                  (1 / maxGrowFactor),
+                flexBasis: (photo.width * galleryPhotoHeight) / photo.height,
                 maxWidth:
-                  (maxGrowFactor * photo.width * galleryPhotoHeight) /
-                  photo.height,
+                  ((photo.width * galleryPhotoHeight) / photo.height) *
+                  maxGrowFactor,
               }}
             >
               <Link

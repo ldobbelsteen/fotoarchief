@@ -27,7 +27,7 @@ const Home: NextPage = () => {
           {data.map((album, i) => (
             <Link key={i} href={"/album/" + album.id}>
               <button className="card">
-                <div className="w-48 h-48 relative block overflow-hidden">
+                <div className="w-48 h-48 relative block">
                   <Image
                     placeholder="blur"
                     blurDataURL={placeholder}
