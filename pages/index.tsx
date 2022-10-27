@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import Image from "next/future/image";
+import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -16,7 +16,7 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex flex-wrap justify-center items-center rounded-xl bg-demos-400 p-2 px-4 m-2">
-        <Image src="/logo.svg" alt="Logo" width={64} height={64} />
+        <Image src="/favicon.svg" alt="Logo" width={64} height={64} />
         <h1>Fotoarchief</h1>
       </div>
       <Link href="/album/create">

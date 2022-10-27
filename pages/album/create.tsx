@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import Image from "next/future/image";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
 import { post } from "../../utils/api";

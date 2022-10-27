@@ -1,4 +1,4 @@
-FROM node:lts AS base
+FROM node:lts-alpine AS base
 WORKDIR /app
 
 FROM base AS build
@@ -11,6 +11,7 @@ RUN npm run build
 
 FROM base
 ENV NODE_ENV production
+RUN apk add --no-cache bash
 RUN npm install -g prisma
 COPY prisma ./prisma
 COPY --from=build /app/public ./public
