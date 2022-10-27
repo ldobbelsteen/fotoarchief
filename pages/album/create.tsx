@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Image from "next/future/image";
 import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
 import { post } from "../../utils/api";
@@ -26,7 +27,18 @@ const CreateAlbum: NextPage = () => {
 
   return (
     <>
-      <h2>Album aanmaken</h2>
+      <div className="flex flex-wrap justify-center">
+        <button onClick={() => router.back()}>
+          <Image
+            className="m-1"
+            src="/back.svg"
+            alt="Terug"
+            width={20}
+            height={20}
+          />
+        </button>
+        <h2>Album aanmaken</h2>
+      </div>
       <form onSubmit={handleSubmit}>
         <fieldset disabled={disabled} className="flex flex-col">
           <input
@@ -38,19 +50,8 @@ const CreateAlbum: NextPage = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder="Voeg een titel toe"
           />
-          <div className="flex flex-wrap justify-center">
-            <button className="btn" type="submit">
-              Aanmaken
-            </button>
-            <button
-              className="btn"
-              onClick={(e) => {
-                e.preventDefault();
-                router.back();
-              }}
-            >
-              Terug
-            </button>
+          <div>
+            <input className="btn" type="submit" value="Aanmaken" />
           </div>
         </fieldset>
       </form>

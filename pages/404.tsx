@@ -6,9 +6,11 @@ const NotFound: NextPage = () => {
     <div className="flex flex-col">
       <h2 className="p-0">404</h2>
       <span>Pagina niet gevonden</span>
-      <Link href="/">
-        <button className="btn">Startpagina</button>
-      </Link>
+      <div>
+        <Link href="/">
+          <input className="btn" type="button" value="Startpagina" />
+        </Link>
+      </div>
     </div>
   );
 };

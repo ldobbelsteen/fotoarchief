@@ -69,7 +69,7 @@ export default function PhotoUpload(props: {
       />
       <input
         type="button"
-        value="Toevoegen"
+        value="Foto's toevoegen"
         className="btn"
         onClick={() => inputRef.current?.click()}
       />

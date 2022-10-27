@@ -6,9 +6,11 @@ const InternalServerError: NextPage = () => {
     <div className="flex flex-col">
       <h2 className="p-0">500</h2>
       <span>Interne server error</span>
-      <Link href="/">
-        <button className="btn">Startpagina</button>
-      </Link>
+      <div>
+        <Link href="/">
+          <input className="btn" type="button" value="Startpagina" />
+        </Link>
+      </div>
     </div>
   );
 };

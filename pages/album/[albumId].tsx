@@ -59,9 +59,22 @@ const Gallery: NextPage = () => {
       <Head>
         <title>{"Album - " + data.name}</title>
       </Head>
-      <h2>
-        Album <span className="font-normal">{data.name}</span>
-      </h2>
+      <div className="flex flex-wrap justify-center">
+        <Link href="/">
+          <button>
+            <Image
+              className="m-1"
+              src="/back.svg"
+              alt="Terug"
+              width={20}
+              height={20}
+            />
+          </button>
+        </Link>
+        <h2>
+          Album <span className="font-normal">{data.name}</span>
+        </h2>
+      </div>
       <div className="flex flex-wrap justify-center">
         <PhotoUpload
           albumId={data.id}
@@ -74,7 +87,7 @@ const Gallery: NextPage = () => {
         />
         <input
           type="button"
-          value="Verwijderen"
+          value="Album verwijderen"
           className="btn"
           onClick={() => {
             post(
@@ -90,11 +103,6 @@ const Gallery: NextPage = () => {
               .catch(() => toast.error("Fout bij verwijderen van album"));
           }}
         />
-        <Link href="/">
-          <a>
-            <button className="btn">Terug</button>
-          </a>
-        </Link>
       </div>
       {data.photos.length > 0 ? (
         <div className="flex flex-wrap gap-2 p-2 pt-4">
@@ -135,9 +143,26 @@ const Gallery: NextPage = () => {
             <div className="fixed left-0 top-0 w-screen h-screen bg-demos-400/90 flex flex-col">
               <div className="flex flex-col w-full h-full">
                 <div className="flex flex-wrap justify-center">
-                  <div className="flex justify-center items-center p-2">
-                    {enlarged.name}
-                  </div>
+                  <Link
+                    href={{
+                      pathname: router.pathname,
+                      query: (() => {
+                        const newQuery = { ...router.query };
+                        delete newQuery["enlarged"];
+                        return newQuery;
+                      })(),
+                    }}
+                  >
+                    <button>
+                      <Image
+                        className="m-2"
+                        src="/back.svg"
+                        alt="Terug"
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </Link>
                   <button className="btn">
                     <a
                       href={"/api/photo/" + enlarged.id}
@@ -188,18 +213,6 @@ const Gallery: NextPage = () => {
                         );
                     }}
                   />
-                  <Link
-                    href={{
-                      pathname: router.pathname,
-                      query: (() => {
-                        const newQuery = { ...router.query };
-                        delete newQuery["enlarged"];
-                        return newQuery;
-                      })(),
-                    }}
-                  >
-                    <button className="btn">Sluiten</button>
-                  </Link>
                 </div>
                 <div className="relative flex-grow">
                   <Image

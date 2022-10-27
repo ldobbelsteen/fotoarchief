@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" version="1.1" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#f5fafc" d="
+        M 0 128
+        L 128 0
+        L 150.627416998 22.627416998
+        L 67.882250994 112
+        L 256 112
+        L 256 144
+        L 67.882250994 144
+        L 150.627416998 233.372583002
+        L 128 256 Z
+    " />
+</svg>

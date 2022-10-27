@@ -20,7 +20,7 @@ const Home: NextPage = () => {
         <h1>Fotoarchief</h1>
       </div>
       <Link href="/album/create">
-        <button className="btn">Nieuw album</button>
+        <input className="btn" type="button" value="Nieuw album" />
       </Link>
       {data && (
         <div className="flex flex-wrap justify-center gap-2 p-2">
