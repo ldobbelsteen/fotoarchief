@@ -6,6 +6,8 @@ import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import { z } from "zod";
+import ButtonWithConfirm from "../../components/ButtonWithConfirm";
+import Modal from "../../components/Modal";
 import PhotoUpload from "../../components/PhotoUpload";
 import { post } from "../../utils/api";
 import { placeholder } from "../../utils/misc";
@@ -85,11 +87,10 @@ const Gallery: NextPage = () => {
             }).catch(console.error);
           }}
         />
-        <input
-          type="button"
-          value="Album verwijderen"
-          className="btn"
-          onClick={() => {
+        <ButtonWithConfirm
+          buttonText="Album verwijderen"
+          confirmationText="Weet je zeker dat je dit album wilt verwijderen?"
+          onConfirm={() => {
             post(
               "/api/album/delete",
               { id: data.id },
@@ -143,9 +144,21 @@ const Gallery: NextPage = () => {
             </button>
           ))}
           {enlarged && (
-            <div className="fixed left-0 top-0 w-screen h-screen bg-demos-400/90 flex flex-col">
-              <div className="flex flex-col w-full h-full">
-                <div className="flex flex-wrap justify-center">
+            <Modal>
+              <div className="w-full h-full">
+                <Image
+                  placeholder="blur"
+                  blurDataURL={placeholder}
+                  className="object-contain"
+                  src={"/api/photo/" + enlarged.id}
+                  alt={enlarged.name}
+                  sizes="100vw"
+                  quality={100}
+                  fill
+                />
+              </div>
+              <div className="fixed left-0 top-0 right-0">
+                <div className="float-left">
                   <Link
                     href={{
                       pathname: router.pathname,
@@ -156,7 +169,7 @@ const Gallery: NextPage = () => {
                       })(),
                     }}
                   >
-                    <button>
+                    <button className="m-2">
                       <Image
                         className="m-2"
                         src="/back.svg"
@@ -166,6 +179,8 @@ const Gallery: NextPage = () => {
                       />
                     </button>
                   </Link>
+                </div>
+                <div className="float-right">
                   <button className="btn">
                     <a
                       href={"/api/photo/" + enlarged.id}
@@ -217,20 +232,8 @@ const Gallery: NextPage = () => {
                     }}
                   />
                 </div>
-                <div className="relative flex-grow">
-                  <Image
-                    placeholder="blur"
-                    blurDataURL={placeholder}
-                    className="object-contain p-2 pt-0"
-                    src={"/api/photo/" + enlarged.id}
-                    alt={enlarged.name}
-                    sizes="100vw"
-                    quality={100}
-                    fill
-                  />
-                </div>
               </div>
-            </div>
+            </Modal>
           )}
         </div>
       ) : (
