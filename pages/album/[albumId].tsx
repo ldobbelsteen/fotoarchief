@@ -88,7 +88,7 @@ const Gallery: NextPage = () => {
           }}
         />
         <ButtonWithConfirm
-          buttonText="Album verwijderen"
+          buttonText="Verwijderen"
           confirmationText="Weet je zeker dat je dit album wilt verwijderen?"
           onConfirm={() => {
             post(
