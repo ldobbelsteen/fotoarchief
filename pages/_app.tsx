@@ -1,8 +1,8 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { Toaster } from "react-hot-toast";
 import { SWRConfig } from "swr";
+import CustomToaster from "../components/CustomToaster";
 
 const App = ({ Component, pageProps }: AppProps) => (
   <SWRConfig
@@ -14,7 +14,7 @@ const App = ({ Component, pageProps }: AppProps) => (
     <Head>
       <title>Fotoarchief</title>
     </Head>
-    <Toaster />
+    <CustomToaster />
     <main className="flex flex-col items-center justify-center overflow-hidden bg-demos-300 text-demos-100 min-h-full text-center p-2">
       <Component {...pageProps} />
     </main>
