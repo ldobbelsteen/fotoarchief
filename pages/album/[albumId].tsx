@@ -61,17 +61,15 @@ const Gallery: NextPage = () => {
       <Head>
         <title>{"Album - " + data.name}</title>
       </Head>
-      <div className="flex flex-wrap justify-center">
+      <div className="flex flex-wrap justify-center items-center">
         <Link href="/">
-          <button>
-            <Image
-              className="m-1"
-              src="/back.svg"
-              alt="Terug"
-              width={20}
-              height={20}
-            />
-          </button>
+          <Image
+            className="m-1"
+            src="/back.svg"
+            alt="Terug"
+            width={20}
+            height={20}
+          />
         </Link>
         <h2>
           Album <span className="font-normal">{data.name}</span>
@@ -169,15 +167,13 @@ const Gallery: NextPage = () => {
                       })(),
                     }}
                   >
-                    <button className="m-2">
-                      <Image
-                        className="m-2"
-                        src="/back.svg"
-                        alt="Terug"
-                        width={20}
-                        height={20}
-                      />
-                    </button>
+                    <Image
+                      className="m-4"
+                      src="/back.svg"
+                      alt="Terug"
+                      width={20}
+                      height={20}
+                    />
                   </Link>
                 </div>
                 <div className="float-right">
